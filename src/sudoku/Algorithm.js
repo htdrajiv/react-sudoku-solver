@@ -61,27 +61,33 @@ SudokuUsingStack.main = async function (args) {
     var dimX = 9;
     var dimY = 9;
     var low = 1;
-    var sudoku = (function (dims) { var allocate = function (dims) { if (dims.length == 0) {
-        return 0;
-    }
-    else {
-        var array = [];
-        for (var i = 0; i < dims[0]; i++) {
-            array.push(allocate(dims.slice(1)));
-        }
-        return array;
-    } }; return allocate(dims); })([dimX, dimY]);
+    var sudoku = (function (dims) {
+        var allocate = function (dims) {
+            if (dims.length == 0) {
+                return 0;
+            }
+            else {
+                var array = [];
+                for (var i = 0; i < dims[0]; i++) {
+                    array.push(allocate(dims.slice(1)));
+                }
+                return array;
+            }
+        }; return allocate(dims);
+    })([dimX, dimY]);
     for (var i = 0; i < dimX; i++) {
         {
-            /* arraycopy */ (function (srcPts, srcOff, dstPts, dstOff, size) { if (srcPts !== dstPts || dstOff >= srcOff + size) {
-            while (--size >= 0)
-                dstPts[dstOff++] = srcPts[srcOff++];
-        }
-        else {
-            var tmp = srcPts.slice(srcOff, srcOff + size);
-            for (var i_1 = 0; i_1 < size; i_1++)
-                dstPts[dstOff++] = tmp[i_1];
-        } })(givenBoard[i], 0, sudoku[i], 0, dimY);
+            /* arraycopy */ (function (srcPts, srcOff, dstPts, dstOff, size) {
+                if (srcPts !== dstPts || dstOff >= srcOff + size) {
+                    while (--size >= 0)
+                        dstPts[dstOff++] = srcPts[srcOff++];
+                }
+                else {
+                    var tmp = srcPts.slice(srcOff, srcOff + size);
+                    for (var i_1 = 0; i_1 < size; i_1++)
+                        dstPts[dstOff++] = tmp[i_1];
+                }
+            })(givenBoard[i], 0, sudoku[i], 0, dimY);
         }
         ;
     }
@@ -107,7 +113,7 @@ SudokuUsingStack.main = async function (args) {
                                     sudoku[i][j] = node.getValue();
                                     //console.info("stack.toString() = " + ('[' + stack.join(', ') + ']'));
                                     args.updateBoard(sudoku);
-                                    await sleep(0.001)
+                                    await sleep(args.sleepTime)
                                     low = 0;
                                     break break1;
                                 }
@@ -128,15 +134,16 @@ SudokuUsingStack.main = async function (args) {
         ;
     }
     console.info("final stack.toString() = " + ('[' + stack.join(', ') + ']'));
-    SudokuUsingStack.printBoard(sudoku, dimX, dimY);
+    SudokuUsingStack.printBoard(sudoku, dimX, dimY, args);
 };
-/*private*/ SudokuUsingStack.printBoard = function (sudokuBoard, dimX, dimY) {
+/*private*/ SudokuUsingStack.printBoard = function (sudokuBoard, dimX, dimY, args) {
     allTheWayOut: for (var i = 0; i < dimX; i++) {
         {
             for (var j = 0; j < dimY; j++) {
                 {
                     if (sudokuBoard[i][j] === 0) {
                         console.info("Couldn\'t find solution for this board!!");
+                        args.noSolution();
                         break allTheWayOut;
                     }
                     console.log(sudokuBoard[i][j] + "  ");
@@ -145,7 +152,6 @@ SudokuUsingStack.main = async function (args) {
             }
             console.log("");
         }
-        ;
     }
 };
 /*private*/ SudokuUsingStack.isPosAvailable = function (node, sudoku) {
